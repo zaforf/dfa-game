@@ -18,7 +18,7 @@ accepting_states: [q, q0, q00]
 
 # if we see a 0, move closer to state q000
 # if we see a 1, reset back to state q
-delta:
+transitions:
   q:
     0: q0    # if we see a 0, count one more 0 than before
     1: q     # YAML requires a space after the colon

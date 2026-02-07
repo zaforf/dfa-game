@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DFA Checker</title>
+</head>
+<body>
+    <h1>DFA Checker</h1>
+    
+    <label>YAML Definition:</label><br>
+    <textarea id="yaml" rows="10" cols="50"></textarea><br><br>
+    
+    <label>Test String:</label><br>
+    <input type="text" id="testString" size="50"><br><br>
+    
+    <button onclick="check()">Check</button>
+    <div id="result"></div>
+
+    <script>
+        async function check() {
+            const yaml_def = document.getElementById('yaml').value;
+            const test_string = document.getElementById('testString').value;
+            
+            const response = await fetch('http://localhost:8000/check', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ yaml_def, test_string })
+            });
+            
+            const result = await response.json();
+            const resultDiv = document.getElementById('result');
+            document.getElementById('result').innerText = JSON.stringify(result, null, 2);
+        }
+    </script>
+</body>
+</html>
