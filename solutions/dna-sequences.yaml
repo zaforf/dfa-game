@@ -1,0 +1,46 @@
+states: [none, A, AA, AAG, AAGA, AAGAA, AAGAAA, AAGAAAC]
+alphabet: [A, C, G, T]
+initial_state: none
+accepting_states: [AAGAAAC]
+transitions:
+  none:
+    A: A
+    C: none
+    G: none
+    T: none
+  A:
+    A: AA
+    C: none
+    G: none
+    T: none
+  AA:
+    G: AAG
+    C: none
+    T: none
+    A: AA
+  AAG:
+    A: AAGA
+    C: none
+    G: none
+    T: none
+  AAGA:
+    A: AAGAA
+    C: none
+    G: none
+    T: none
+  AAGAA:
+    A: AAGAAA
+    G: AAG
+    C: none
+    T: none
+  AAGAAA:
+    A: AA
+    C: AAGAAAC
+    G: AAG
+    T: none
+  AAGAAAC:
+    A: AAGAAAC
+    C: AAGAAAC
+    G: AAGAAAC
+    T: AAGAAAC
+

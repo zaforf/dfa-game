@@ -40,5 +40,17 @@
     "description": "Treat the string as a binary number (MSB first). Accept it if the number is divisible by 3.",
     "alphabet": ["0", "1"],
     "solution": "divisible-by-3.yaml"
+  },
+  {
+    "name": "DNA sequences",
+    "description": "Accept DNA sequences containing 'AAGAAAC'.",
+    "alphabet": ["A", "C", "G", "T"],
+    "solution": "dna-sequences.yaml"
+  },
+  {
+    "name": "01 == 10",
+    "description": "Accept strings where the count of '01' equals the count of '10'.",
+    "alphabet": ["0", "1"],
+    "solution": "equal-01-10.yaml"
   }
 ]
