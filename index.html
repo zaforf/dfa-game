@@ -1,34 +1,1252 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>DFA Checker</title>
+    <meta charset="UTF-8">
+    <title>DFA Game</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 14px;
+            margin: 0; 
+            padding: 12px;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            color: #333;
+        }
+        #mainArea {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+        #header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 6px 0;
+            flex-wrap: wrap;
+        }
+        #header h1 {
+            margin: 0;
+            font-size: 20px;
+        }
+        #challengeName {
+            color: #0066cc;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        #alphabetDisplay {
+            font-size: 13px;
+            color: #555;
+            background: #f0f0f0;
+            padding: 3px 10px;
+            border-radius: 3px;
+        }
+        #controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 0;
+            flex-wrap: wrap;
+        }
+        #testString { width: 160px; padding: 5px 8px; font-size: 13px; }
+        #resultIndicator { font-weight: bold; font-size: 13px; display: inline-block; min-width: 35px; text-align: center; }
+        button {
+            padding: 5px 12px;
+            cursor: pointer;
+            border: 1px solid #999;
+            background: #f5f5f5;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+        button:hover { background: #e5e5e5; }
+        #submitBtn {
+            background: #0066cc;
+            color: white;
+            border-color: #0055aa;
+            display: none;
+        }
+        #submitBtn:hover { background: #0055aa; }
+        #canvasContainer { 
+            position: relative; 
+            flex: 1;
+            min-height: 0;
+        }
+        #canvas { 
+            border: 1px solid #ccc; 
+            display: block;
+        }
+        #labelInput {
+            position: absolute;
+            padding: 2px 5px;
+            font-size: 14px;
+            border: 1px solid #333;
+            outline: none;
+            background: white;
+            z-index: 10;
+            width: 80px;
+        }
+        #helpToggle {
+            font-size: 12px;
+            color: #888;
+            cursor: pointer;
+            user-select: none;
+        }
+        #helpToggle:hover { color: #333; }
+        #helpContent {
+            display: none;
+            font-size: 12px;
+            color: #777;
+            padding: 4px 0;
+            line-height: 1.6;
+        }
+        #helpContent.show { display: block; }
+        
+        /* Right sidebar */
+        #sidebar {
+            width: 320px;
+            flex-shrink: 0;
+            border-left: 1px solid #ddd;
+            margin-left: 12px;
+            padding-left: 12px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        #sidebarToggle {
+            font-size: 13px;
+            padding: 6px 12px;
+            margin-bottom: 10px;
+        }
+        #challengeList {
+            display: none;
+            overflow-y: auto;
+            max-height: 70vh;
+        }
+        #challengeList.show { display: block; }
+        .challenge-item {
+            padding: 10px;
+            border: 1px solid #ddd;
+            margin-bottom: 6px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .challenge-item:hover { background: #f5f5f5; }
+        .challenge-item.selected { 
+            border-color: #0066cc;
+            background: #e6f0ff;
+        }
+        .challenge-item h4 {
+            margin: 0 0 4px 0;
+            font-size: 14px;
+        }
+        .challenge-item p {
+            margin: 0;
+            font-size: 12px;
+            color: #666;
+            line-height: 1.4;
+        }
+        #submitResult {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            display: none;
+        }
+        #submitResult.success {
+            background: #d4edda;
+            color: #155724;
+            display: block;
+        }
+        #submitResult.fail {
+            background: #f8d7da;
+            color: #721c24;
+            display: block;
+        }
+        #submitResult.warning {
+            background: #fff3cd;
+            color: #856404;
+            display: block;
+        }
+        .challenge-item.completed {
+            background: #d4edda;
+            border-color: #a3d9a5;
+        }
+        .challenge-item.completed.selected {
+            background: #c3e6cb;
+            border-color: #0066cc;
+        }
+        #apiLoading {
+            margin-top: 8px;
+            padding: 8px 10px;
+            background: #e2e3e5;
+            color: #383d41;
+            border-radius: 4px;
+            font-size: 12px;
+            display: none;
+        }
+        
+        /* Errors panel */
+        #errorsPanel {
+            margin-top: 12px;
+            padding: 10px;
+            background: #fff8f8;
+            border: 1px solid #e8c4c4;
+            border-radius: 4px;
+            max-height: 250px;
+            overflow-y: auto;
+            display: none;
+        }
+        #errorsPanel.show { display: block; }
+        #errorsHeader {
+            font-size: 13px;
+            font-weight: 600;
+            color: #a94442;
+            margin-bottom: 6px;
+        }
+        #errorsPanel ul {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 12px;
+            color: #a94442;
+            line-height: 1.5;
+        }
+        #errorsPanel li {
+            margin-bottom: 4px;
+        }
+    </style>
 </head>
 <body>
-    <h1>DFA Checker</h1>
+    <div id="mainArea">
+        <div id="header">
+            <h1>DFA Game</h1>
+            <span id="challengeName"></span>
+            <span id="alphabetDisplay" style="display:none"></span>
+        </div>
+        
+        <div id="controls">
+            <input type="text" id="testString" placeholder="Test string" autocomplete="off">
+            <span id="resultIndicator"></span>
+            <button id="submitBtn">Submit Challenge</button>
+            <button id="resetBtn">Reset</button>
+            <span id="helpToggle">? Help</span>
+        </div>
+        
+        <div id="helpContent">
+            Click: create state | Drag center: move | Drag edge: create transition<br>
+            Double-click: toggle accepting | Right-click: set initial | Delete: remove<br>
+            Pan: drag empty | Zoom: scroll | Click edge: delete
+        </div>
+        
+        <div id="canvasContainer">
+            <canvas id="canvas"></canvas>
+            <input type="text" id="labelInput" style="display:none;" autocomplete="off">
+        </div>
+    </div>
     
-    <label>YAML Definition:</label><br>
-    <textarea id="yaml" rows="10" cols="50"></textarea><br><br>
-    
-    <label>Test String:</label><br>
-    <input type="text" id="testString" size="50"><br><br>
-    
-    <button onclick="check()">Check</button>
-    <div id="result"></div>
+    <div id="sidebar">
+        <button id="sidebarToggle">Challenges</button>
+        <div id="challengeList"></div>
+        <div id="apiLoading">API is waking up, one moment...</div>
+        <div id="submitResult"></div>
+        <div id="errorsPanel">
+            <div id="errorsHeader">Errors</div>
+            <ul id="errorsList"></ul>
+        </div>
+    </div>
 
     <script>
-        async function check() {
-            const yaml_def = document.getElementById('yaml').value;
-            const test_string = document.getElementById('testString').value;
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const testStringInput = document.getElementById('testString');
+        const resultIndicator = document.getElementById('resultIndicator');
+        const labelInput = document.getElementById('labelInput');
+        const container = document.getElementById('canvasContainer');
+        const helpToggle = document.getElementById('helpToggle');
+        const helpContent = document.getElementById('helpContent');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const challengeList = document.getElementById('challengeList');
+        const submitBtn = document.getElementById('submitBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const challengeNameEl = document.getElementById('challengeName');
+        const alphabetDisplay = document.getElementById('alphabetDisplay');
+        const submitResult = document.getElementById('submitResult');
+        const errorsPanel = document.getElementById('errorsPanel');
+        const errorsList = document.getElementById('errorsList');
+        const apiLoading = document.getElementById('apiLoading');
+        
+        let challenges = [];
+        let currentChallenge = null;
+        let currentChallengeIndex = null;
+        let currentAlphabet = ['0', '1'];
+        let completedChallenges = new Set();
+        let requestId = 0;
+        
+        let states = [];
+        let transitions = [];
+        let initialState = null;
+        let stateCounter = 0;
+        
+        let selectedState = null;
+        let draggingState = null;
+        let dragOffset = { x: 0, y: 0 };
+        let selectionTimeout = null;
+        
+        // Edge creation and hover
+        let edgeStartState = null;
+        let edgePreview = null;
+        let hoveredEdge = null; // { from, to } pair for highlighting
+        let pendingEdgePreview = null; // Keep showing preview during label input
+        
+        // Pan and zoom
+        let panOffset = { x: 0, y: 0 };
+        let zoom = 1;
+        let isPanning = false;
+        let panStart = { x: 0, y: 0 };
+        let panMoved = false; // Track if we actually moved during pan
+        
+        // Label input state
+        let pendingState = null;
+        let pendingEdge = null;
+        
+        const STATE_RADIUS = 30;
+        const INNER_RADIUS = 18; // Center zone for moving
+        
+        function screenToWorld(sx, sy) {
+            return {
+                x: (sx - panOffset.x) / zoom,
+                y: (sy - panOffset.y) / zoom
+            };
+        }
+        
+        function worldToScreen(wx, wy) {
+            return {
+                x: wx * zoom + panOffset.x,
+                y: wy * zoom + panOffset.y
+            };
+        }
+        
+        function draw() {
+            const dpr = window.devicePixelRatio || 1;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.save();
+            ctx.translate(panOffset.x, panOffset.y);
+            ctx.scale(zoom, zoom);
             
-            const response = await fetch('https://dfa-game-y4nq.onrender.com/check', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ yaml_def, test_string })
+            // Group transitions by from+to pair and combine labels
+            const edgeGroups = new Map();
+            transitions.forEach(t => {
+                const key = `${t.from}->${t.to}`;
+                if (!edgeGroups.has(key)) {
+                    edgeGroups.set(key, { from: t.from, to: t.to, symbols: [] });
+                }
+                edgeGroups.get(key).symbols.push(t.symbol);
             });
             
-            const result = await response.json();
-            const resultDiv = document.getElementById('result');
-            document.getElementById('result').innerText = JSON.stringify(result, null, 2);
+            // Draw grouped transitions
+            edgeGroups.forEach(group => {
+                const isHovered = hoveredEdge && hoveredEdge.from === group.from && hoveredEdge.to === group.to;
+                drawTransition(group.from, group.to, group.symbols.join(', '), isHovered);
+            });
+            
+            // Draw edge preview (during drag or during label input)
+            const previewData = edgePreview || pendingEdgePreview;
+            const previewFrom = edgeStartState || (pendingEdgePreview ? pendingEdgePreview.fromState : null);
+            if (previewData && previewFrom) {
+                ctx.strokeStyle = '#0088ff';
+                ctx.setLineDash([5, 5]);
+                ctx.lineWidth = 2;
+                if (previewData.to) {
+                    if (previewFrom === previewData.to) {
+                        // Self-loop preview - full loop
+                        const loopRadius = 18;
+                        const loopY = previewFrom.y - STATE_RADIUS - loopRadius + 5;
+                        ctx.beginPath();
+                        ctx.arc(previewFrom.x, loopY, loopRadius, 0.15 * Math.PI, 0.85 * Math.PI, true);
+                        ctx.stroke();
+                        // Arrow head for self-loop preview
+                        ctx.setLineDash([]);
+                        const endAngle = 0.85 * Math.PI;
+                        const arrowX = previewFrom.x + loopRadius * Math.cos(endAngle);
+                        const arrowY = loopY + loopRadius * Math.sin(endAngle);
+                        drawArrowHead(arrowX, arrowY, Math.PI * 0.4);
+                        ctx.setLineDash([5, 5]);
+                    } else {
+                        drawEdgePath(previewFrom, previewData.to, true);
+                    }
+                } else if (previewData.x !== undefined) {
+                    ctx.beginPath();
+                    ctx.moveTo(previewFrom.x, previewFrom.y);
+                    ctx.lineTo(previewData.x, previewData.y);
+                    ctx.stroke();
+                    // Arrow head for line preview
+                    ctx.setLineDash([]);
+                    const angle = Math.atan2(previewData.y - previewFrom.y, previewData.x - previewFrom.x);
+                    drawArrowHead(previewData.x, previewData.y, angle);
+                    ctx.setLineDash([5, 5]);
+                }
+                ctx.setLineDash([]);
+                ctx.strokeStyle = 'black';
+            }
+            
+            // Draw states
+            states.forEach(s => {
+                const isSelected = s === selectedState || s === draggingState;
+                
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, STATE_RADIUS, 0, 2 * Math.PI);
+                ctx.fillStyle = isSelected ? '#ddd' : 'white';
+                ctx.fill();
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Accepting state - double circle
+                if (s.accepting) {
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, STATE_RADIUS - 5, 0, 2 * Math.PI);
+                    ctx.stroke();
+                }
+                
+                // Initial state - arrow pointing in
+                if (s.name === initialState) {
+                    ctx.beginPath();
+                    ctx.moveTo(s.x - STATE_RADIUS - 30, s.y);
+                    ctx.lineTo(s.x - STATE_RADIUS, s.y);
+                    ctx.stroke();
+                    drawArrowHead(s.x - STATE_RADIUS, s.y, 0);
+                }
+                
+                ctx.fillStyle = 'black';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.font = '14px sans-serif';
+                ctx.fillText(s.name, s.x, s.y);
+            });
+            
+            ctx.restore();
+        }
+        
+        function drawTransition(fromName, toName, label, isHovered) {
+            const from = states.find(s => s.name === fromName);
+            const to = states.find(s => s.name === toName);
+            if (!from || !to) return;
+            
+            ctx.strokeStyle = isHovered ? 'red' : 'black';
+            ctx.lineWidth = 2;
+            
+            if (from === to) {
+                // Self-loop - wider arc that connects smoothly to the node
+                const loopRadius = 18;
+                const loopY = from.y - STATE_RADIUS - loopRadius + 5;
+                ctx.beginPath();
+                ctx.arc(from.x, loopY, loopRadius, 0.15 * Math.PI, 0.85 * Math.PI, true);
+                ctx.stroke();
+                
+                // Arrow head - pointing into the node
+                const endAngle = 0.85 * Math.PI;
+                const arrowX = from.x + loopRadius * Math.cos(endAngle);
+                const arrowY = loopY + loopRadius * Math.sin(endAngle);
+                drawArrowHead(arrowX, arrowY, Math.PI * 0.4);
+                
+                // Label with white background
+                ctx.font = '12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const labelX = from.x;
+                const labelY = loopY - loopRadius - 5;
+                const textWidth = ctx.measureText(label).width;
+                ctx.fillStyle = 'white';
+                ctx.fillRect(labelX - textWidth/2 - 2, labelY - 7, textWidth + 4, 14);
+                ctx.fillStyle = isHovered ? 'red' : 'black';
+                ctx.fillText(label, labelX, labelY);
+            } else {
+                drawEdgePath(from, to, false, label, isHovered);
+            }
+            
+            ctx.strokeStyle = 'black';
+        }
+        
+        function drawEdgePath(from, to, isPreview, symbol, isHovered) {
+            // Default straight line, curve only for bidirectional or collision avoidance
+            const hasReverse = transitions.some(tr => tr.from === to.name && tr.to === from.name);
+            let curvature = hasReverse ? 0.12 : 0;
+            
+            const dx = to.x - from.x;
+            const dy = to.y - from.y;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            
+            // Perpendicular direction for curve
+            const perpX = -dy / dist;
+            const perpY = dx / dist;
+            
+            // Mid control point
+            let midX = (from.x + to.x) / 2 + perpX * dist * curvature;
+            let midY = (from.y + to.y) / 2 + perpY * dist * curvature;
+            
+            // Try to avoid other nodes by increasing curvature if needed
+            const avoidanceRadius = STATE_RADIUS + 10;
+            let attempts = 0;
+            let curveSign = 1;
+            
+            while (attempts < 6) {
+                let collision = false;
+                for (const s of states) {
+                    if (s === from || s === to) continue;
+                    
+                    for (let t = 0.2; t <= 0.8; t += 0.1) {
+                        const px = (1-t)*(1-t)*from.x + 2*(1-t)*t*midX + t*t*to.x;
+                        const py = (1-t)*(1-t)*from.y + 2*(1-t)*t*midY + t*t*to.y;
+                        if (Math.sqrt((px - s.x)**2 + (py - s.y)**2) < avoidanceRadius) {
+                            collision = true;
+                            break;
+                        }
+                    }
+                    if (collision) break;
+                }
+                
+                if (!collision) break;
+                
+                attempts++;
+                curveSign = attempts % 2 === 1 ? -curveSign : curveSign;
+                curvature = (0.15 + attempts * 0.1) * curveSign;
+                midX = (from.x + to.x) / 2 + perpX * dist * curvature;
+                midY = (from.y + to.y) / 2 + perpY * dist * curvature;
+            }
+            
+            // Start and end points on circle edges
+            let startX, startY, endX, endY;
+            if (curvature === 0) {
+                // Straight line - simple angle calculation
+                const angle = Math.atan2(dy, dx);
+                startX = from.x + Math.cos(angle) * STATE_RADIUS;
+                startY = from.y + Math.sin(angle) * STATE_RADIUS;
+                endX = to.x - Math.cos(angle) * STATE_RADIUS;
+                endY = to.y - Math.sin(angle) * STATE_RADIUS;
+            } else {
+                // Curved - angle toward control point
+                const startAngle = Math.atan2(midY - from.y, midX - from.x);
+                const endAngle = Math.atan2(midY - to.y, midX - to.x);
+                startX = from.x + Math.cos(startAngle) * STATE_RADIUS;
+                startY = from.y + Math.sin(startAngle) * STATE_RADIUS;
+                endX = to.x + Math.cos(endAngle) * STATE_RADIUS;
+                endY = to.y + Math.sin(endAngle) * STATE_RADIUS;
+            }
+            
+            ctx.beginPath();
+            ctx.moveTo(startX, startY);
+            if (curvature === 0) {
+                ctx.lineTo(endX, endY);
+            } else {
+                ctx.quadraticCurveTo(midX, midY, endX, endY);
+            }
+            ctx.stroke();
+            
+            // Arrow head
+            const arrowAngle = curvature === 0 ? Math.atan2(dy, dx) : Math.atan2(endY - midY, endX - midX);
+            drawArrowHead(endX, endY, arrowAngle);
+            
+            // Label with white background
+            if (symbol) {
+                let labelX, labelY;
+                if (curvature === 0) {
+                    // Straight line - midpoint between nodes
+                    labelX = (from.x + to.x) / 2;
+                    labelY = (from.y + to.y) / 2;
+                } else {
+                    // Quadratic bezier at t=0.5: P = (1-t)^2*P0 + 2*(1-t)*t*P1 + t^2*P2
+                    const t = 0.5;
+                    labelX = (1-t)*(1-t)*startX + 2*(1-t)*t*midX + t*t*endX;
+                    labelY = (1-t)*(1-t)*startY + 2*(1-t)*t*midY + t*t*endY;
+                }
+                ctx.font = '12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const textWidth = ctx.measureText(symbol).width;
+                ctx.fillStyle = 'white';
+                ctx.fillRect(labelX - textWidth/2 - 2, labelY - 7, textWidth + 4, 14);
+                ctx.fillStyle = isHovered ? 'red' : 'black';
+                ctx.fillText(symbol, labelX, labelY);
+            }
+        }
+        
+        function drawArrowHead(x, y, angle) {
+            const size = 10;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x - size * Math.cos(angle - 0.4), y - size * Math.sin(angle - 0.4));
+            ctx.moveTo(x, y);
+            ctx.lineTo(x - size * Math.cos(angle + 0.4), y - size * Math.sin(angle + 0.4));
+            ctx.stroke();
+        }
+        
+        function getStateAt(wx, wy) {
+            return states.find(s => {
+                const dx = s.x - wx;
+                const dy = s.y - wy;
+                return dx*dx + dy*dy <= STATE_RADIUS * STATE_RADIUS;
+            });
+        }
+        
+        function getZone(state, wx, wy) {
+            const dx = state.x - wx;
+            const dy = state.y - wy;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            return dist <= INNER_RADIUS ? 'center' : 'edge';
+        }
+        
+        // Get edge near point (for hover/click detection)
+        function getEdgeAt(wx, wy) {
+            const threshold = 8;
+            
+            // Group by from+to
+            const edgeGroups = new Map();
+            transitions.forEach(t => {
+                const key = `${t.from}->${t.to}`;
+                if (!edgeGroups.has(key)) {
+                    edgeGroups.set(key, { from: t.from, to: t.to });
+                }
+            });
+            
+            for (const [key, group] of edgeGroups) {
+                const from = states.find(s => s.name === group.from);
+                const to = states.find(s => s.name === group.to);
+                if (!from || !to) continue;
+                
+                if (from === to) {
+                    // Self-loop detection
+                    const loopRadius = 18;
+                    const loopY = from.y - STATE_RADIUS - loopRadius + 5;
+                    const distToLoopCenter = Math.sqrt((wx - from.x) ** 2 + (wy - loopY) ** 2);
+                    if (Math.abs(distToLoopCenter - loopRadius) < threshold) {
+                        return group;
+                    }
+                } else {
+                    // Use same curvature logic as drawEdgePath
+                    const hasReverse = transitions.some(tr => tr.from === to.name && tr.to === from.name);
+                    let curvature = hasReverse ? 0.12 : 0;
+                    
+                    const dx = to.x - from.x;
+                    const dy = to.y - from.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    const perpX = -dy / dist;
+                    const perpY = dx / dist;
+                    
+                    let midX = (from.x + to.x) / 2 + perpX * dist * curvature;
+                    let midY = (from.y + to.y) / 2 + perpY * dist * curvature;
+                    
+                    // Check for node avoidance (same logic as drawing)
+                    const avoidanceRadius = STATE_RADIUS + 10;
+                    let attempts = 0;
+                    let curveSign = 1;
+                    while (attempts < 6) {
+                        let collision = false;
+                        for (const s of states) {
+                            if (s === from || s === to) continue;
+                            for (let t = 0.2; t <= 0.8; t += 0.1) {
+                                const px = (1-t)*(1-t)*from.x + 2*(1-t)*t*midX + t*t*to.x;
+                                const py = (1-t)*(1-t)*from.y + 2*(1-t)*t*midY + t*t*to.y;
+                                if (Math.sqrt((px - s.x)**2 + (py - s.y)**2) < avoidanceRadius) {
+                                    collision = true;
+                                    break;
+                                }
+                            }
+                            if (collision) break;
+                        }
+                        if (!collision) break;
+                        attempts++;
+                        curveSign = attempts % 2 === 1 ? -curveSign : curveSign;
+                        curvature = (0.15 + attempts * 0.1) * curveSign;
+                        midX = (from.x + to.x) / 2 + perpX * dist * curvature;
+                        midY = (from.y + to.y) / 2 + perpY * dist * curvature;
+                    }
+                    
+                    // Sample points along the curve/line
+                    for (let t = 0; t <= 1; t += 0.05) {
+                        let px, py;
+                        if (curvature === 0) {
+                            px = from.x + t * dx;
+                            py = from.y + t * dy;
+                        } else {
+                            px = (1-t)*(1-t)*from.x + 2*(1-t)*t*midX + t*t*to.x;
+                            py = (1-t)*(1-t)*from.y + 2*(1-t)*t*midY + t*t*to.y;
+                        }
+                        const d = Math.sqrt((wx - px) ** 2 + (wy - py) ** 2);
+                        if (d < threshold) {
+                            return group;
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+        
+        function clearSelection() {
+            if (selectionTimeout) {
+                clearTimeout(selectionTimeout);
+                selectionTimeout = null;
+            }
+            selectedState = null;
+            draw();
+        }
+        
+        function setSelection(state) {
+            if (selectionTimeout) {
+                clearTimeout(selectionTimeout);
+            }
+            selectedState = state;
+            // Auto-clear selection after 3 seconds
+            selectionTimeout = setTimeout(() => {
+                selectedState = null;
+                draw();
+            }, 3000);
+            draw();
+        }
+        
+        function updateCursor(e) {
+            const rect = canvas.getBoundingClientRect();
+            const sx = e.clientX - rect.left;
+            const sy = e.clientY - rect.top;
+            const { x: wx, y: wy } = screenToWorld(sx, sy);
+            const state = getStateAt(wx, wy);
+            
+            // Check for edge hover
+            const edge = getEdgeAt(wx, wy);
+            if (edge && !state) {
+                hoveredEdge = edge;
+                canvas.style.cursor = 'pointer';
+                draw();
+                return;
+            } else if (hoveredEdge) {
+                hoveredEdge = null;
+                draw();
+            }
+            
+            if (state) {
+                const zone = getZone(state, wx, wy);
+                canvas.style.cursor = zone === 'center' ? 'grab' : 'crosshair';
+            } else {
+                canvas.style.cursor = 'default';
+            }
+        }
+        
+        function showLabelInput(screenX, screenY, placeholder, callback) {
+            labelInput.style.display = 'block';
+            labelInput.style.left = screenX + 'px';
+            labelInput.style.top = screenY + 'px';
+            labelInput.value = '';
+            labelInput.placeholder = placeholder;
+            labelInput.focus();
+            
+            const handler = (e) => {
+                if (e.key === 'Enter') {
+                    labelInput.style.display = 'none';
+                    labelInput.removeEventListener('keydown', handler);
+                    labelInput.removeEventListener('blur', blurHandler);
+                    callback(labelInput.value);
+                } else if (e.key === 'Escape') {
+                    labelInput.style.display = 'none';
+                    labelInput.removeEventListener('keydown', handler);
+                    labelInput.removeEventListener('blur', blurHandler);
+                    callback(null);
+                }
+            };
+            
+            const blurHandler = () => {
+                labelInput.style.display = 'none';
+                labelInput.removeEventListener('keydown', handler);
+                labelInput.removeEventListener('blur', blurHandler);
+                callback(null);
+            };
+            
+            labelInput.addEventListener('keydown', handler);
+            labelInput.addEventListener('blur', blurHandler);
+        }
+        
+        canvas.addEventListener('mousedown', e => {
+            if (labelInput.style.display !== 'none') return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const sx = e.clientX - rect.left;
+            const sy = e.clientY - rect.top;
+            const { x: wx, y: wy } = screenToWorld(sx, sy);
+            const state = getStateAt(wx, wy);
+            
+            if (e.button === 2) return; // Right click handled separately
+            
+            if (state) {
+                const zone = getZone(state, wx, wy);
+                if (zone === 'center') {
+                    // Start dragging state
+                    draggingState = state;
+                    setSelection(state);
+                    dragOffset = { x: state.x - wx, y: state.y - wy };
+                    canvas.style.cursor = 'grabbing';
+                } else {
+                    // Start edge creation
+                    edgeStartState = state;
+                    edgePreview = { x: wx, y: wy, to: null };
+                }
+            } else {
+                // Start panning
+                isPanning = true;
+                panMoved = false;
+                panStart = { x: e.clientX - panOffset.x, y: e.clientY - panOffset.y };
+                canvas.style.cursor = 'move';
+            }
+            draw();
+        });
+        
+        canvas.addEventListener('mousemove', e => {
+            const rect = canvas.getBoundingClientRect();
+            const sx = e.clientX - rect.left;
+            const sy = e.clientY - rect.top;
+            const { x: wx, y: wy } = screenToWorld(sx, sy);
+            
+            if (draggingState) {
+                draggingState.x = wx + dragOffset.x;
+                draggingState.y = wy + dragOffset.y;
+                draw();
+            } else if (edgeStartState) {
+                const targetState = getStateAt(wx, wy);
+                edgePreview = targetState ? { to: targetState } : { x: wx, y: wy, to: null };
+                draw();
+            } else if (isPanning) {
+                const newX = e.clientX - panStart.x;
+                const newY = e.clientY - panStart.y;
+                // Check if we actually moved
+                if (Math.abs(newX - panOffset.x) > 3 || Math.abs(newY - panOffset.y) > 3) {
+                    panMoved = true;
+                }
+                panOffset.x = newX;
+                panOffset.y = newY;
+                draw();
+            } else {
+                updateCursor(e);
+            }
+        });
+        
+        canvas.addEventListener('mouseup', e => {
+            const rect = canvas.getBoundingClientRect();
+            const sx = e.clientX - rect.left;
+            const sy = e.clientY - rect.top;
+            const { x: wx, y: wy } = screenToWorld(sx, sy);
+            
+            if (draggingState) {
+                draggingState = null;
+                canvas.style.cursor = 'grab';
+            } else if (edgeStartState) {
+                const targetState = getStateAt(wx, wy);
+                if (targetState) {
+                    // Create edge - store preview for during label input
+                    const fromState = edgeStartState;
+                    const fromName = edgeStartState.name;
+                    const toName = targetState.name;
+                    
+                    // Keep preview visible during label input
+                    pendingEdgePreview = { fromState, to: targetState };
+                    
+                    // Position label input
+                    let labelX, labelY;
+                    if (fromState === targetState) {
+                        // Self-loop - position above
+                        const screenPos = worldToScreen(fromState.x, fromState.y - STATE_RADIUS - 50);
+                        labelX = screenPos.x;
+                        labelY = screenPos.y;
+                    } else {
+                        const screenPos = worldToScreen(
+                            (fromState.x + targetState.x) / 2,
+                            (fromState.y + targetState.y) / 2 - 20
+                        );
+                        labelX = screenPos.x;
+                        labelY = screenPos.y;
+                    }
+                    
+                    // Clear drag state but keep preview
+                    edgeStartState = null;
+                    edgePreview = null;
+                    draw(); // Redraw with pendingEdgePreview
+                    
+                    showLabelInput(labelX, labelY, 'symbol(s)', (input) => {
+                        pendingEdgePreview = null; // Clear preview
+                        if (input !== null && input !== '') {
+                            // Parse comma-separated symbols
+                            const symbols = input.split(',').map(s => s.trim()).filter(s => s !== '');
+                            symbols.forEach(symbol => {
+                                const existing = transitions.find(t => t.from === fromName && t.symbol === symbol);
+                                if (existing) {
+                                    existing.to = toName;
+                                } else {
+                                    transitions.push({ from: fromName, to: toName, symbol });
+                                }
+                            });
+                            emitChange();
+                        }
+                        draw();
+                    });
+                    return; // Don't clear edgeStartState yet
+                }
+                edgeStartState = null;
+                edgePreview = null;
+            } else if (isPanning) {
+                isPanning = false;
+                canvas.style.cursor = 'default';
+                
+                // If we didn't move, it's a click - create a new state
+                if (!panMoved) {
+                    const state = getStateAt(wx, wy);
+                    const edge = getEdgeAt(wx, wy);
+                    
+                    if (edge && !state) {
+                        // Delete all transitions for this edge
+                        transitions = transitions.filter(t => !(t.from === edge.from && t.to === edge.to));
+                        hoveredEdge = null;
+                        emitChange();
+                    } else if (!state) {
+                        // Create new state
+                        showLabelInput(sx, sy - 30, 'state name', (name) => {
+                            if (name !== null && name !== '') {
+                                if (states.some(s => s.name === name)) {
+                                    draw();
+                                    return;
+                                }
+                                const newState = { name, x: wx, y: wy, accepting: false };
+                                states.push(newState);
+                                if (!initialState) initialState = newState.name;
+                                emitChange();
+                            }
+                            draw();
+                        });
+                    }
+                }
+            }
+            draw();
+        });
+        
+        canvas.addEventListener('click', e => {
+            if (labelInput.style.display !== 'none') return;
+            if (draggingState || edgeStartState || isPanning) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const sx = e.clientX - rect.left;
+            const sy = e.clientY - rect.top;
+            const { x: wx, y: wy } = screenToWorld(sx, sy);
+            const state = getStateAt(wx, wy);
+            
+            if (state) {
+                setSelection(state);
+            }
+            // Node creation is now handled in mouseup when !panMoved
+        });
+        
+        canvas.addEventListener('dblclick', e => {
+            const rect = canvas.getBoundingClientRect();
+            const sx = e.clientX - rect.left;
+            const sy = e.clientY - rect.top;
+            const { x: wx, y: wy } = screenToWorld(sx, sy);
+            const state = getStateAt(wx, wy);
+            
+            if (state) {
+                state.accepting = !state.accepting;
+                emitChange();
+                draw();
+            }
+        });
+        
+        canvas.addEventListener('contextmenu', e => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const sx = e.clientX - rect.left;
+            const sy = e.clientY - rect.top;
+            const { x: wx, y: wy } = screenToWorld(sx, sy);
+            const state = getStateAt(wx, wy);
+            
+            if (state) {
+                initialState = state.name;
+                emitChange();
+                draw();
+            }
+        });
+        
+        canvas.addEventListener('wheel', e => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const sx = e.clientX - rect.left;
+            const sy = e.clientY - rect.top;
+            
+            const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+            const newZoom = Math.max(0.3, Math.min(3, zoom * zoomFactor));
+            
+            // Zoom toward mouse position
+            panOffset.x = sx - (sx - panOffset.x) * (newZoom / zoom);
+            panOffset.y = sy - (sy - panOffset.y) * (newZoom / zoom);
+            zoom = newZoom;
+            
+            draw();
+        });
+        
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                clearSelection();
+                labelInput.style.display = 'none';
+            }
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                if (selectedState && document.activeElement !== testStringInput && labelInput.style.display === 'none') {
+                    const name = selectedState.name;
+                    states = states.filter(s => s !== selectedState);
+                    transitions = transitions.filter(t => t.from !== name && t.to !== name);
+                    if (initialState === name) initialState = states.length > 0 ? states[0].name : null;
+                    clearSelection();
+                    emitChange();
+                    draw();
+                }
+            }
+        });
+        
+        testStringInput.addEventListener('input', () => {
+            emitChange();
+        });
+        
+        // Help toggle
+        helpToggle.addEventListener('click', () => {
+            helpContent.classList.toggle('show');
+            helpToggle.textContent = helpContent.classList.contains('show') ? '- Help' : '? Help';
+        });
+        
+        // Sidebar toggle
+        sidebarToggle.addEventListener('click', () => {
+            challengeList.classList.toggle('show');
+        });
+        
+        // Reset button
+        resetBtn.addEventListener('click', () => {
+            states = [];
+            transitions = [];
+            initialState = null;
+            stateCounter = 0;
+            selectedState = null;
+            panOffset = { x: 0, y: 0 };
+            zoom = 1;
+            testStringInput.value = '';
+            resultIndicator.textContent = '';
+            submitResult.className = '';
+            submitResult.style.display = 'none';
+            errorsPanel.classList.remove('show');
+            draw();
+        });
+        
+        // Submit challenge
+        submitBtn.addEventListener('click', async () => {
+            if (!currentChallenge) return;
+            
+            const yaml = generateYAML();
+            submitResult.textContent = 'Checking...';
+            submitResult.className = '';
+            submitResult.style.display = 'block';
+            errorsPanel.classList.remove('show');
+            
+            const loadingTimer = setTimeout(() => {
+                apiLoading.style.display = 'block';
+            }, 2000);
+            
+            try {
+                const response = await fetch('https://dfa-game-y4nq.onrender.com/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        yaml_def: yaml, 
+                        challenge: currentChallenge.name,
+                        solution: currentChallenge.solution
+                    })
+                });
+                
+                clearTimeout(loadingTimer);
+                apiLoading.style.display = 'none';
+                
+                const result = await response.json();
+                console.log('Submit result:', result);
+                
+                if (result.success) {
+                    submitResult.textContent = 'Challenge completed!';
+                    submitResult.className = 'success';
+                    completedChallenges.add(currentChallengeIndex);
+                    // Mark challenge green in list
+                    const items = document.querySelectorAll('.challenge-item');
+                    if (items[currentChallengeIndex]) {
+                        items[currentChallengeIndex].classList.add('completed');
+                    }
+                } else if (result.example !== undefined && result.example !== null) {
+                    submitResult.textContent = `Counterexample: "${result.example}"`;
+                    submitResult.className = 'warning';
+                } else {
+                    submitResult.textContent = 'Incorrect';
+                    submitResult.className = 'fail';
+                }
+                
+                // Show errors if present
+                if (result.errors && result.errors.length > 0) {
+                    errorsList.innerHTML = result.errors.map(e => `<li>${e}</li>`).join('');
+                    errorsPanel.classList.add('show');
+                }
+            } catch (err) {
+                clearTimeout(loadingTimer);
+                apiLoading.style.display = 'none';
+                console.error(err);
+                submitResult.textContent = 'Error submitting';
+                submitResult.className = 'fail';
+            }
+        });
+        
+        // Load challenges
+        async function loadChallenges() {
+            try {
+                const response = await fetch('challenges.json');
+                challenges = await response.json();
+                renderChallenges();
+            } catch (err) {
+                console.error('Failed to load challenges:', err);
+            }
+        }
+        
+        function renderChallenges() {
+            challengeList.innerHTML = '';
+            challenges.forEach((ch, index) => {
+                const div = document.createElement('div');
+                div.className = 'challenge-item' + (completedChallenges.has(index) ? ' completed' : '');
+                div.innerHTML = `<h4>${ch.name}</h4><p>${ch.description}</p>`;
+                div.addEventListener('click', () => selectChallenge(index));
+                challengeList.appendChild(div);
+            });
+        }
+        
+        function selectChallenge(index) {
+            // Update selection UI
+            document.querySelectorAll('.challenge-item').forEach((el, i) => {
+                el.classList.remove('selected');
+                if (i === index) el.classList.add('selected');
+            });
+            
+            currentChallenge = challenges[index];
+            currentChallengeIndex = index;
+            currentAlphabet = currentChallenge.alphabet || ['0', '1'];
+            
+            // Update displays
+            challengeNameEl.textContent = currentChallenge.name;
+            alphabetDisplay.textContent = `Σ = {${currentAlphabet.join(', ')}}`;
+            alphabetDisplay.style.display = '';
+            submitBtn.style.display = 'inline-block';
+            submitResult.style.display = 'none';
+            submitResult.className = '';
+            errorsPanel.classList.remove('show');
+            
+            // Re-check with new alphabet
+            emitChange();
+        }
+        
+        function updateAlphabetDisplay() {
+            alphabetDisplay.textContent = `Σ = {${currentAlphabet.join(', ')}}`;
+        }
+        
+        // Resize canvas to fit container
+        function resizeCanvas() {
+            const rect = container.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            draw();
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        
+        // Initialize
+        resizeCanvas();
+        loadChallenges();
+        draw();
+        
+        function generateYAML() {
+            const stateNames = states.map(s => s.name);
+            const acceptingStates = states.filter(s => s.accepting).map(s => s.name);
+            const alphabet = currentChallenge
+                ? [...currentAlphabet].sort()
+                : [...new Set(transitions.map(t => t.symbol))].sort();
+            
+            let yaml = `states: [${stateNames.join(', ')}]\n`;
+            yaml += `alphabet: [${alphabet.join(', ')}]\n`;
+            yaml += `initial_state: ${initialState || ''}\n`;
+            yaml += `accepting_states: [${acceptingStates.join(', ')}]\n`;
+            yaml += `transitions:\n`;
+            
+            states.forEach(s => {
+                const stateTransitions = transitions.filter(t => t.from === s.name);
+                if (stateTransitions.length > 0) {
+                    yaml += `  ${s.name}:\n`;
+                    stateTransitions.forEach(t => {
+                        yaml += `    ${t.symbol}: ${t.to}\n`;
+                    });
+                }
+            });
+            
+            return yaml;
+        }
+        
+        async function emitChange() {
+            const yaml = generateYAML();
+            console.log('--- Generated YAML ---');
+            console.log(yaml);
+            
+            if (states.length === 0 || !initialState) return;
+            
+            const thisRequest = ++requestId;
+            
+            const loadingTimer = setTimeout(() => {
+                apiLoading.style.display = 'block';
+            }, 2000);
+            
+            try {
+                const response = await fetch('https://dfa-game-y4nq.onrender.com/check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        yaml_def: yaml, 
+                        test_string: testStringInput.value 
+                    })
+                });
+                
+                clearTimeout(loadingTimer);
+                apiLoading.style.display = 'none';
+                
+                // Ignore stale responses
+                if (thisRequest !== requestId) return;
+                
+                const result = await response.json();
+                console.log('Result:', result);
+                
+                if (result.success) {
+                    resultIndicator.textContent = result.accepted ? 'PASS' : 'FAIL';
+                    resultIndicator.style.color = result.accepted ? 'green' : 'red';
+                    errorsPanel.classList.remove('show');
+                } else {
+                    resultIndicator.textContent = 'ERR';
+                    resultIndicator.style.color = 'orange';
+                    // Show errors if present
+                    if (result.errors && result.errors.length > 0) {
+                        errorsList.innerHTML = result.errors.map(e => `<li>${e}</li>`).join('');
+                        errorsPanel.classList.add('show');
+                    } else {
+                        errorsPanel.classList.remove('show');
+                    }
+                }
+            } catch (err) {
+                clearTimeout(loadingTimer);
+                apiLoading.style.display = 'none';
+                console.error(err);
+            }
         }
     </script>
 </body>

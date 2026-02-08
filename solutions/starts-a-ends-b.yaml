@@ -1,0 +1,18 @@
+states: [start, cooked, a, b]
+alphabet: [a, b]
+initial_state: start
+accepting_states: [b]
+transitions:
+  start:
+    b: cooked
+    a: a
+  cooked:
+    a: cooked
+    b: cooked
+  a:
+    b: b
+    a: a
+  b:
+    a: a
+    b: b
+

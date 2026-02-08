@@ -1,0 +1,18 @@
+states: [e0e1, e0o1, o0e1, o0o1]
+alphabet: [0, 1]
+initial_state: e0e1
+accepting_states: [e0o1]
+transitions:
+  e0e1:
+    0: o0e1
+    1: e0o1
+  e0o1:
+    1: e0e1
+    0: o0o1
+  o0e1:
+    0: e0e1
+    1: o0o1
+  o0o1:
+    1: o0e1
+    0: e0o1
+

@@ -1,0 +1,15 @@
+states: [none, a, ab]
+alphabet: [a, b]
+initial_state: none
+accepting_states: [ab]
+transitions:
+  none:
+    a: a
+    b: none
+  a:
+    b: ab
+    a: a
+  ab:
+    a: a
+    b: none
+

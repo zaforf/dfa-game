@@ -1,0 +1,15 @@
+states: [0, 1, 11]
+alphabet: [0, 1]
+initial_state: 0
+accepting_states: [0, 1]
+transitions:
+  0:
+    0: 0
+    1: 1
+  1:
+    1: 11
+    0: 0
+  11:
+    1: 11
+    0: 11
+

@@ -1,0 +1,44 @@
+[
+  {
+    "name": "Odd number of 1s",
+    "description": "Accept strings with an odd number of '1's.",
+    "alphabet": ["0", "1"],
+    "solution": "odd-ones.yaml"
+  },
+  {
+    "name": "Strings ending with 'ab'",
+    "description": "Accept only strings that end with 'ab'.",
+    "alphabet": ["a", "b"],
+    "solution": "ends-with-ab.yaml"
+  },
+  {
+    "name": "Starts with 'a', ends with 'b'",
+    "description": "Accept strings that start with 'a' and end with 'b'.",
+    "alphabet": ["a", "b"],
+    "solution": "starts-a-ends-b.yaml"
+  },
+  {
+    "name": "No consecutive 1s",
+    "description": "Accept strings that do NOT contain '11'.",
+    "alphabet": ["0", "1"],
+    "solution": "no-consecutive-ones.yaml"
+  },
+  {
+    "name": "Even 0s, odd 1s",
+    "description": "Accept strings where the total count of '0's is even AND the total count of '1's is odd.",
+    "alphabet": ["0", "1"],
+    "solution": "parity-checker.yaml"
+  },
+  {
+    "name": "'aa' XOR 'bb'",
+    "description": "Accept strings with 'aa' OR 'bb', but NOT both.",
+    "alphabet": ["a", "b"],
+    "solution": "xor-substrings.yaml"
+  },
+  {
+    "name": "Binary divisible by 3",
+    "description": "Treat the string as a binary number (MSB first). Accept it if the number is divisible by 3.",
+    "alphabet": ["0", "1"],
+    "solution": "divisible-by-3.yaml"
+  }
+]
