@@ -1,0 +1,30 @@
+states: [aabb!, bb!a, aa!b, a, none, b, bb!b, aa!a]
+alphabet: [a, b]
+initial_state: none
+accepting_states: [bb!a, aa!b, bb!b, aa!a]
+transitions:
+  aabb!:
+    a: aabb!
+    b: aabb!
+  bb!a:
+    a: aabb!
+    b: bb!b
+  aa!b:
+    b: aabb!
+    a: aa!a
+  a:
+    a: aa!a
+    b: b
+  none:
+    a: a
+    b: b
+  b:
+    b: bb!b
+    a: a
+  bb!b:
+    a: bb!a
+    b: bb!b
+  aa!a:
+    b: aa!b
+    a: aa!a
+
