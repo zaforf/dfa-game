@@ -207,11 +207,3 @@ class DFA:
 if __name__ == "__main__":
 
     dfa = DFA()
-    print(dfa.load("dfa.yaml"))
-    print(dfa.accepts("1000"))
-    print(dfa.accepts("1001"))
-
-    inv = ~(~dfa)
-
-    diff = dfa ^ inv
-    print(diff.get_example() is not None)
