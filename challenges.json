@@ -52,5 +52,11 @@
     "description": "Accept strings where the count of '01' equals the count of '10'.",
     "alphabet": ["0", "1"],
     "solution": "equal-01-10.yaml"
+  },
+  {
+    "name": "Non-decreasing pairs",
+    "description": "Accept even-length strings where each 2-bit pair is greater than or equal to the last.",
+    "alphabet": ["0", "1"],
+    "solution": "non-decreasing-pairs.yaml"
   }
 ]
