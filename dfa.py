@@ -65,6 +65,7 @@ class DFA:
                 errors.append(f"Symbol '{symbol}' is not a single character.")
 
         # create states with names
+        self.states = {}
         for state in data['states']:
             self.states[state] = State(state)
 
@@ -203,7 +204,92 @@ class DFA:
                 q.put((dest, path + symbol))
 
         return None
+    
+    def minimize(self) -> int:
+        # returns the number of states in the minimized DFA
+        if self.initial_state is None or self.alphabet is None:
+            raise RuntimeError("DFA not loaded. Call load() successfully first.")
+
+        partition = [set(), set()]
+        for state in self.states.values():
+            if state.accepting: partition[0].add(state)
+            else:               partition[1].add(state)
+        
+        if len(partition[0]) == 0 or len(partition[1]) == 0:
+            return 1
+        
+        reverse = {}
+        for state in self.states.values():
+            for symbol, dest in state.transition.items():
+                if (dest, symbol) not in reverse:
+                    reverse[(dest, symbol)] = set()
+                reverse[(dest, symbol)].add(state)
+
+        group_map = {state: 0 if state.accepting else 1 for state in self.states.values()}
+        splitters = {0 if len(partition[0]) < len(partition[1]) else 1}
+        
+        while splitters:
+            splitter_id = splitters.pop()
+            splitter = partition[splitter_id]
+
+            for symbol in self.alphabet:
+                # find states that transition to splitter on symbol
+                X = set()
+                for state in splitter:
+                    if (state, symbol) in reverse:
+                        X.update(reverse[(state, symbol)])
+                if not X: continue
+
+                # group states in X by their current partition
+                impacted = {}
+                for state in X:
+                    group_id = group_map[state]
+                    if group_id not in impacted:
+                        impacted[group_id] = set()
+                    impacted[group_id].add(state)
+
+                for group_id, intersect in impacted.items():
+                    if len(intersect) < len(partition[group_id]):
+                        
+                        # split group_id into intersect and the rest
+                        diff = partition[group_id] - intersect
+                        partition[group_id] = intersect
+                        new_group_id = len(partition)
+                        partition.append(diff)
+
+                        for state in diff:
+                            group_map[state] = new_group_id
+
+                        if group_id in splitters:
+                            # group_id is already a splitter, so add the new group as a splitter too
+                            splitters.add(new_group_id)
+                        else:
+                            # add the smaller of the two groups as a splitter
+                            splitters.add(group_id if len(intersect) < len(diff) else new_group_id)
+
+        return len(partition)
+
+        
 
 if __name__ == "__main__":
 
     dfa = DFA()
+
+    import json
+    with open("challenges.json", "r") as f:
+        challenges = json.load(f)
+    
+    for challenge in challenges:
+        solution_path = challenge.get("solution")
+        
+        result = dfa.load(f"solutions/{solution_path}")
+        if not result["success"]:
+            print(f"Failed to load DFA for challenge {challenge['name']}: {result['errors']}")
+            continue
+        
+        minimized_count = dfa.minimize()
+        challenge["minimized_states"] = minimized_count
+        print(f"Challenge {challenge['name']} has {minimized_count} states in the minimized DFA.")
+        
+    with open("challenges.json", "w") as f:
+        json.dump(challenges, f, indent=2)

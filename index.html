@@ -1071,7 +1071,11 @@
                 console.log('Submit result:', result);
                 
                 if (result.success) {
-                    submitResult.textContent = 'Challenge completed!';
+                    if (states.length > result.minimized_states) {
+                        submitResult.textContent = `Challenge completed! Your solution has ${states.length} states, but it can be done with ${result.minimized_states}!`;
+                    } else if (states.length === result.minimized_states) {
+                        submitResult.textContent = 'Challenge completed with the optimal number of states!';
+                    }
                     submitResult.className = 'success';
                     completedChallenges.add(currentChallengeIndex);
                     // Mark challenge green in list

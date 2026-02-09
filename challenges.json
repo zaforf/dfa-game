@@ -2,61 +2,103 @@
   {
     "name": "Odd number of 1s",
     "description": "Accept strings with an odd number of '1's.",
-    "alphabet": ["0", "1"],
-    "solution": "odd-ones.yaml"
+    "alphabet": [
+      "0",
+      "1"
+    ],
+    "solution": "odd-ones.yaml",
+    "minimized_states": 2
   },
   {
     "name": "Strings ending with 'ab'",
     "description": "Accept only strings that end with 'ab'.",
-    "alphabet": ["a", "b"],
-    "solution": "ends-with-ab.yaml"
+    "alphabet": [
+      "a",
+      "b"
+    ],
+    "solution": "ends-with-ab.yaml",
+    "minimized_states": 3
   },
   {
     "name": "Starts with 'a', ends with 'b'",
     "description": "Accept strings that start with 'a' and end with 'b'.",
-    "alphabet": ["a", "b"],
-    "solution": "starts-a-ends-b.yaml"
+    "alphabet": [
+      "a",
+      "b"
+    ],
+    "solution": "starts-a-ends-b.yaml",
+    "minimized_states": 4
   },
   {
     "name": "No consecutive 1s",
     "description": "Accept strings that do NOT contain '11'.",
-    "alphabet": ["0", "1"],
-    "solution": "no-consecutive-ones.yaml"
+    "alphabet": [
+      "0",
+      "1"
+    ],
+    "solution": "no-consecutive-ones.yaml",
+    "minimized_states": 3
   },
   {
     "name": "Even 0s, odd 1s",
     "description": "Accept strings where the total count of '0's is even AND the total count of '1's is odd.",
-    "alphabet": ["0", "1"],
-    "solution": "parity-checker.yaml"
+    "alphabet": [
+      "0",
+      "1"
+    ],
+    "solution": "parity-checker.yaml",
+    "minimized_states": 4
   },
   {
     "name": "'aa' XOR 'bb'",
     "description": "Accept strings with 'aa' OR 'bb', but NOT both.",
-    "alphabet": ["a", "b"],
-    "solution": "xor-substrings.yaml"
+    "alphabet": [
+      "a",
+      "b"
+    ],
+    "solution": "xor-substrings.yaml",
+    "minimized_states": 8
   },
   {
     "name": "Binary divisible by 3",
     "description": "Treat the string as a binary number (MSB first). Accept it if the number is divisible by 3.",
-    "alphabet": ["0", "1"],
-    "solution": "divisible-by-3.yaml"
+    "alphabet": [
+      "0",
+      "1"
+    ],
+    "solution": "divisible-by-3.yaml",
+    "minimized_states": 3
   },
   {
     "name": "DNA sequences",
     "description": "Accept DNA sequences containing 'AAGAAAC'.",
-    "alphabet": ["A", "C", "G", "T"],
-    "solution": "dna-sequences.yaml"
+    "alphabet": [
+      "A",
+      "C",
+      "G",
+      "T"
+    ],
+    "solution": "dna-sequences.yaml",
+    "minimized_states": 8
   },
   {
     "name": "01 == 10",
     "description": "Accept strings where the count of '01' equals the count of '10'.",
-    "alphabet": ["0", "1"],
-    "solution": "equal-01-10.yaml"
+    "alphabet": [
+      "0",
+      "1"
+    ],
+    "solution": "equal-01-10.yaml",
+    "minimized_states": 5
   },
   {
     "name": "Non-decreasing pairs",
     "description": "Accept even-length strings where each 2-bit pair is greater than or equal to the last.",
-    "alphabet": ["0", "1"],
-    "solution": "non-decreasing-pairs.yaml"
+    "alphabet": [
+      "0",
+      "1"
+    ],
+    "solution": "non-decreasing-pairs.yaml",
+    "minimized_states": 9
   }
 ]
